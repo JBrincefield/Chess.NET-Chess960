@@ -36,7 +36,8 @@ namespace Chess.View.Window
         public MainWindow()
         {
             this.InitializeComponent();
-            this.game = new ChessGameVM(this.Choose);
+            string rulebook = "Chess960"; // Set to "Standard" for standard chess rules or "Chess960" for Chess960 rules.
+            this.game = new ChessGameVM(this.Choose, rulebook);
             this.promotionSelector = new PromotionSelector();
             this.DataContext = this.game;
         }
