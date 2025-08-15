@@ -13,3 +13,15 @@
 * Provides a fully immutable implementation of the chess game model.
 * Provides an undo command to restore previous chess game states.
 * Provides a full code documentation.
+
+---
+
+## New in This Version — Chess960 Support
+
+The project now includes full support for **Chess960** (Fischer Random Chess), with the following additions:
+
+* **New Rulebook implementation** for Chess960, randomizing the back rank while ensuring:
+  - Bishops are on opposite-colored squares.
+  - The king is placed between the two rooks.
+  - both sides have the same starting positions
+* **Menu dropdown option** for switching game mode between standard rules and Chess960 then automatically restarting the game.
