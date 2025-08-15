@@ -21,9 +21,10 @@ namespace Chess.ViewModel.Game
     public class ChessGameVM : ICommandVisitor, INotifyPropertyChanged
     {
         /// <summary>
-        /// Represents the rulebook for the game.
+        /// Represents the rulebook used for the chess game.
+        /// Change the rulebook field from readonly to non-readonly to allow assignment outside the constructor.
         /// </summary>
-        private readonly IRulebook rulebook;
+        private IRulebook rulebook;
 
         /// <summary>
         /// Represents the disambiguation mechanism if multiple updates are available for a target field.
@@ -54,14 +55,9 @@ namespace Chess.ViewModel.Game
         /// Initializes a new instance of the <see cref="ChessGameVM"/> class.
         /// </summary>
         /// <param name="updateSelector">The disambiguation mechanism if multiple updates are available for a target field.</param>
-        public ChessGameVM(Func<IList<Update>, Update> updateSelector, string rulebook)
+        public ChessGameVM(Func<IList<Update>, Update> updateSelector)
         {
-            if (rulebook == "Standard") this.rulebook = new StandardRulebook();
-
-            else if (rulebook == "Chess960") this.rulebook = new Chess960Rulebook();
-
-            else throw new ArgumentException("Unknown rulebook specified.", nameof(rulebook));
-        
+            this.rulebook = new StandardRulebook();
             this.Game = this.rulebook.CreateGame();
             this.board = new BoardVM(this.Game.Board);
             this.updateSelector = updateSelector;
@@ -127,6 +123,32 @@ namespace Chess.ViewModel.Game
                     () => true,
                     () =>
                     {
+                        this.Game = this.rulebook.CreateGame();
+                        this.Board = new BoardVM(this.Game.Board);
+                        this.OnPropertyChanged(nameof(this.Status));
+                    }
+                );
+            }
+        }
+
+        ///<summary>
+        ///Gets the command that changes the rulebook of the chess game and then restarts the game.
+        /// </summary>
+        public GenericCommand ChangeRulebookCommand
+        {
+            get
+            {
+                return new GenericCommand
+                (
+                    () => true,
+                    () =>
+                    {
+                        this.rulebook = this.rulebook switch
+                        {
+                            StandardRulebook => new Chess960Rulebook(),
+                            Chess960Rulebook => new StandardRulebook(),
+                            _ => throw new InvalidOperationException("Unknown rulebook specified.")
+                        };
                         this.Game = this.rulebook.CreateGame();
                         this.Board = new BoardVM(this.Game.Board);
                         this.OnPropertyChanged(nameof(this.Status));
